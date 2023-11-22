@@ -1,3 +1,6 @@
+error message 
+Connecting to the router...
+Connection to device timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
 
@@ -21,7 +24,7 @@ try:
         'interface Loopback0',
         'ip address 10.0.0.1 255.255.255.255',
         'interface GigabitEthernet0/1',
-        'ip address 192.168.1.1 255.255.255.0',
+        'ip address 192.168.56.101 255.255.255.0',
     ]
 
     print("Configuring interfaces...")
@@ -32,7 +35,7 @@ try:
     ospf_commands = [
         'router ospf 1',
         'network 10.0.0.1 0.0.0.0 area 0',
-        'network 192.168.1.0 0.0.0.255 area 0',
+        'network 192.168.56.0 0.0.0.255 area 0',
     ]
 
     print("Configuring OSPF...")
