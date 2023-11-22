@@ -7,8 +7,12 @@ ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 try:
-    ssh_client.connect(hostname='192.168.56.101', username='cisco', password='cisco123!')
-    print("Connected!")
+    ssh_client.connect(hostname='192.168.56.101', port=22, username='cisco', password='cisco123!')
+    print("Connected successfully!")
+
+    stdin, stdout, stderr = ssh_client.exec_command('ls')
+    print(stdout.read().decode())
+
     ssh_client.close()
 
     # Define the router details
