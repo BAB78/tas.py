@@ -12,22 +12,26 @@ try:
     ssh_client.close()
 
 # Define the router details
-router = {
-    'device_type': 'cisco_ios',
-    'ip': '192.168.56.101',
-    'username': 'cisco',
-    'password': 'cisco123!',
-    'secret': 'class123!',
-    'port': 22,  # Specify the SSH port if it's different from the default (22)
-    'timeout': 120,  # Adjust timeout as needed
+    router = {
+        'device_type': 'cisco_ios',
+        'ip': '192.168.56.101',
+        'username': 'cisco',
+        'password': 'cisco123!',
+        'secret': 'class123!',
+        'port': 22,  # Specify the SSH port if it's different from the default (22)
+        'timeout': 120,  # Adjust timeout as needed
 }
 
-try:
+    try:
     # Connect to the router
-    print("Connecting to the router...")
-    net_connect = ConnectHandler(**router)
-    net_connect.enable()
-    print("Connection established!")
+        print("Connecting to the router...")
+        net_connect = ConnectHandler(**router)
+        net_connect.enable()
+        print("Connection established!")
+
+        print("Discounecting from the router...")
+        net_connect.disconnect()
+        print("Dissconnected!")
 
     # Configure interfaces with IP addresses
     interface_commands = [
@@ -88,18 +92,15 @@ try:
     net_connect.disconnect()
     print("Disconnected!")
 
-except NetmikoAuthenticationException as auth_error:
-    print(f"Authentication failed: {auth_error}")
+    except NetmikoAuthenticationException as auth_error:
+        print(f"Authentication failed: {auth_error}")
 
-except NetmikoTimeoutException as timeout_error:
-    print(f"Connection to device timed out: {timeout_error}")
+    except NetmikoTimeoutException as timeout_error:
+        print(f"Connection to device timed out: {timeout_error}")
 
-except Exception as e:
-    print(f"An error occurred: {str(e)}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
-
-    error message 
-    File "/home/devasc/labs/prne/task.py", line 14
-    router = {
-    ^
-SyntaxError: invalid syntax
+except error as e:
+    print(f"socket error occurred: {str(e)}")
+    
