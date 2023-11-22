@@ -19,8 +19,6 @@ print("Connection established!")
 interface_commands = [
     'interface Loopback0',
     'ip address 10.0.0.1 255.255.255.255',
-    'interface GigabitEthernet0/0',
-    'ip address 192.168.56.101 255.255.255.0',
 ]
 
 print("Configuring interfaces...")
@@ -30,7 +28,7 @@ print("Interfaces configured!")
 # Configure OSPF
 ospf_commands = [
     'router ospf 1',
-    'network 10.0.0.0 0.255.255.255 area 0',
+    'network 10.0.0.0 255.255.255 area 0',
     'network 192.168.56.0 0.0.0.255 area 0',
 ]
 
@@ -76,3 +74,28 @@ print(output)
 print("Disconnecting from the router...")
 output = net_connect.disconnect()
 print("Disconnected!")
+
+
+error message 
+Connecting to the router...
+Traceback (most recent call last):
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 899, in establish_connection
+    self.remote_conn_pre.connect(**ssh_connect_params)
+  File "/home/devasc/.local/lib/python3.8/site-packages/paramiko/client.py", line 368, in connect
+    raise NoValidConnectionsError(errors)
+paramiko.ssh_exception.NoValidConnectionsError: [Errno None] Unable to connect to port 22 on 192.168.56.101
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/devasc/labs/prne/task.py", line 14, in <module>
+    output = net_connect = ConnectHandler(**router)
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/ssh_dispatcher.py", line 266, in ConnectHandler
+    return ConnectionClass(*args, **kwargs)
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 327, in __init__
+    self._open()
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 332, in _open
+    self.establish_connection()
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 905, in establish_connection
+    raise NetmikoTimeoutException(msg)
+netmiko.ssh_exception.NetmikoTimeoutException: Connection to device timed-out: cisco_ios 192.168.56.101:22
