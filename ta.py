@@ -1,5 +1,15 @@
+from socket import error
+import paramiko
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
+
+ssh_client = paramiko.SSHClient()
+ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+try:
+    ssh_client.connect(hostname='192.168.56.101', username='cisco', password='cisco123!')
+    print("connect!")
+    ssh_client.close()
 
 # Define the router details
 router = {
@@ -9,7 +19,7 @@ router = {
     'password': 'cisco123!',
     'secret': 'class123!',
     'port': 22,  # Specify the SSH port if it's different from the default (22)
-    'timeout': 10,  # Adjust timeout as needed
+    'timeout': 120,  # Adjust timeout as needed
 }
 
 try:
@@ -32,7 +42,7 @@ try:
     # Configure OSPF
     ospf_commands = [
         'router ospf 1',
-        'network 10.0.0.0 0.255.255.255 area 0',
+        'network 10.0.0.0 255.255.255 area 0',
         'network 192.168.56.0 0.0.0.255 area 0',
     ]
 
@@ -86,3 +96,10 @@ except NetmikoTimeoutException as timeout_error:
 
 except Exception as e:
     print(f"An error occurred: {str(e)}")
+
+
+    error message 
+    File "/home/devasc/labs/prne/task.py", line 14
+    router = {
+    ^
+SyntaxError: invalid syntax
