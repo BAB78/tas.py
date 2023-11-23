@@ -1,7 +1,5 @@
-Connection timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
-
 from netmiko import ConnectHandler
-from netmiko.ssh_exception import NetmikoTimeoutException
+from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
 
 # Define the router details
 router = {
@@ -18,42 +16,20 @@ try:
     net_connect = ConnectHandler(**router)
     net_connect.enable()
 
-    # Configure interfaces with IP addresses
-    interface_commands = [
-        'interface Loopback0',
-        'ip address 10.0.0.1 255.255.255.255',
-        'interface GigabitEthernet0/0',
-        'ip address 192.168.56.101 255.255.255.0',
-    ]
-    net_connect.send_config_set(interface_commands)
+    # If the connection is successful, proceed with configuration
+    print("Successfully connected to the device.")
 
-    # Configure OSPF
-    ospf_commands = [
-        'router ospf 1',
-        'network 10.0.0.0 0.255.255.255 area 0',
-        'network 192.168.56.0 0.0.0.255 area 0',
-    ]
-    net_connect.send_config_set(ospf_commands)
+    # Perform your device configurations here...
 
-    # Configure ACLs
-    acl_commands = [
-        'access-list 101 permit tcp host 192.168.56.101 any eq www',
-        'access-list 101 permit ip any host 192.168.56.30',
-        'interface GigabitEthernet0/0',
-        'ip access-group 101 in',
-        'ip access-group 101 out',
-    ]
-    net_connect.send_config_set(acl_commands)
-
-    # Configure IPSec
-    ipsec_commands = [
-        'crypto isakmp policy 1',
-        # Add your IPSec configuration here...
-    ]
-    net_connect.send_config_set(ipsec_commands)
-
-    # Disconnect from the router
+    # Disconnect from the router after configurations
     net_connect.disconnect()
+    print("Disconnected from the device.")
+
+except NetmikoAuthenticationException as auth_error:
+    print(f"Authentication failed: {auth_error}")
 
 except NetmikoTimeoutException as timeout_error:
     print(f"Connection timed out: {timeout_error}")
+
+except Exception as e:
+    print(f"An error occurred: {str(e)}")
