@@ -69,6 +69,7 @@ if retry == max_retries:
 
 
 
+
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
 import time
@@ -131,8 +132,8 @@ while retry < max_retries:
         break
 
     except NetmikoTimeoutException as e:
+        print(f"Retry attempt {retry + 1} failed due to timeout. {e}")
         retry += 1
-        print(f"Retry attempt {retry} failed due to timeout. {e}")
         if retry == max_retries:
             print("Maximum retries exceeded. Script ending.")
         else:
