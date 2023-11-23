@@ -1,3 +1,5 @@
+Connection timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
+
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
 
