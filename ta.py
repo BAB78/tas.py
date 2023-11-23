@@ -1,3 +1,14 @@
+error message 
+Pinging 192.168.56.101...
+PING 192.168.56.101 (192.168.56.101) 56(84) bytes of data.
+From 192.168.56.101 icmp_seq=1 Packet filtered
+From 192.168.56.101 icmp_seq=2 Packet filtered
+
+--- 192.168.56.101 ping statistics ---
+2 packets transmitted, 0 received, +2 errors, 100% packet loss, time 1011ms
+
+192.168.56.101 is unreachable. Please check connectivity.
+
 import os
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
