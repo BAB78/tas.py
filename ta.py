@@ -1,35 +1,17 @@
-error message 
-Pinging 192.168.56.101...
-PING 192.168.56.101 (192.168.56.101) 56(84) bytes of data.
-From 192.168.56.101 icmp_seq=1 Packet filtered
-From 192.168.56.101 icmp_seq=2 Packet filtered
-
---- 192.168.56.101 ping statistics ---
-2 packets transmitted, 0 received, +2 errors, 100% packet loss, time 1011ms
-
-192.168.56.101 is unreachable. Please check connectivity.
-
-import os
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
+import time
 
 max_retries = 3
-debug = False
 
 router = {
-    "device_type": "cisco_ios",
-    "ip": "192.168.56.101",
-    "username": "cisco",
-    "password": "cisco123!",
-    "secret": "class123!",
-    "verbose": debug,
+    'device_type': 'cisco_ios',
+    'ip': '192.168.56.101',
+    'username': 'cisco',
+    'password': 'cisco123!',
+    'secret': 'class123!',
+    'timeout': 10,  # Adjust timeout as needed
 }
-
-print(f"Pinging {router['ip']}...")
-response = os.system(f"ping {router['ip']} -c 2")
-if response != 0:
-    print(f"{router['ip']} is unreachable. Please check connectivity.")
-    exit()
 
 retry = 0
 while retry < max_retries:
@@ -38,19 +20,41 @@ while retry < max_retries:
         net_connect = ConnectHandler(**router)
         net_connect.enable()
 
+        # Configure interfaces with IP addresses
         interface_commands = [
-            "interface Loopback0",
-            "ip address 10.0.0.1 255.255.255.255",
-            "interface GigabitEthernet0/0",
-            "ip address 192.168.56.101 255.255.255.0",
+            'interface Loopback0',
+            'ip address 10.0.0.1 255.255.255.255',
+            'interface GigabitEthernet0/0',
+            'ip address 192.168.56.101 255.255.255.0',
         ]
-
-        print("Configuring interfaces...")
         net_connect.send_config_set(interface_commands)
 
-        # Similar config commands...
+        # Configure OSPF or other protocols
+        ospf_commands = [
+            'router ospf 1',
+            'network 10.0.0.0 0.255.255.255 area 0',
+            'network 192.168.56.0 0.0.0.255 area 0',
+        ]
+        net_connect.send_config_set(ospf_commands)
 
-        print("Disconnecting...")
+        # Configure ACLs
+        acl_commands = [
+            'access-list 101 permit tcp host 192.168.56.101 any eq www',
+            'access-list 101 permit ip any host 192.168.56.30',
+            'interface GigabitEthernet0/0',
+            'ip access-group 101 in',
+            'ip access-group 101 out',
+        ]
+        net_connect.send_config_set(acl_commands)
+
+        # Configure IPSec
+        ipsec_commands = [
+            'crypto isakmp policy 1',
+            # Add your IPSec configuration here...
+        ]
+        net_connect.send_config_set(ipsec_commands)
+
+        # Disconnect from the router
         net_connect.disconnect()
         print(f"Connection successful after {retry + 1} attempts!")
         break
@@ -58,6 +62,7 @@ while retry < max_retries:
     except NetmikoTimeoutException as e:
         print(f"Retry attempt {retry + 1} failed due to timeout. {e}")
         retry += 1
+        time.sleep(5)  # Wait before retrying
 
 if retry == max_retries:
     print("Maximum retries exceeded. Script ending.")
