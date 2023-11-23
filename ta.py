@@ -1,35 +1,52 @@
+import time
 from netmiko import ConnectHandler
-from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
+from netmiko.ssh_exception import NetmikoTimeoutException
 
-# Define the router details
+max_retries = 3
+debug = False
+
 router = {
-    'device_type': 'cisco_ios',
-    'ip': '192.168.56.101',
-    'username': 'cisco',
-    'password': 'cisco123!',
-    'secret': 'class123!',
-    'timeout': 30,  # Set a higher timeout value (e.g., 30 seconds)
+    "device_type": "cisco_ios",
+    "ip": "192.168.56.101",
+    "username": "cisco",
+    "password": "cisco123!",  
+    "secret": "class123!",
+    "verbose": debug,  
 }
 
-try:
-    # Connect to the router
+print(f"Pinging {router['ip']}...")
+response = os.system(f"ping {router['ip']} -c 2")
+if response != 0:
+  print(f"{router['ip']} is unreachable. Please check connectivity.")
+  exit()
+
+for retry in range(max_retries):
+  
+  try:
+    print(f"Connection attempt {retry+1}...")
+    
     net_connect = ConnectHandler(**router)
     net_connect.enable()
 
-    # If the connection is successful, proceed with configuration
-    print("Successfully connected to the device.")
+    interface_commands = [
+      "interface Loopback0",
+      "ip address 10.0.0.1 255.255.255.255",
+      "interface GigabitEthernet0/0", 
+      "ip address 192.168.56.101 255.255.255.0",
+    ]
 
-    # Perform your device configurations here...
+    print("Configuring interfaces...")
+    net_connect.send_config_set(interface_commands)
 
-    # Disconnect from the router after configurations
+    # Similar config commands
+    
+    print("Disconnecting...")  
     net_connect.disconnect()
-    print("Disconnected from the device.")
+    print(f"Connection successful after {retry+1} attempts!")
+    break
 
-except NetmikoAuthenticationException as auth_error:
-    print(f"Authentication failed: {auth_error}")
-
-except NetmikoTimeoutException as timeout_error:
-    print(f"Connection timed out: {timeout_error}")
-
-except Exception as e:
-    print(f"An error occurred: {str(e)}")
+  except NetmikoTimeoutException as e:
+    print(f"Retry attempt {retry+1} failed due to timeout. {e}")  
+    
+if retry == max_retries-1:
+  print("Maximum retries exceeded. Script ending.")
