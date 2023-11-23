@@ -39,6 +39,9 @@ try:
     output = net_connect.send_config_set(ospf_commands)
     print("OSPF configured!")
 
+    # iii. Print Loopback configuration
+    print("Configured Loopback0 with IP address 10.0.0.1/32")
+
     # Disconnect from the router
     print("Disconnecting from the router...")
     net_connect.disconnect()
