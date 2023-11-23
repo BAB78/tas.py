@@ -16,31 +16,38 @@ try:
     net_connect.enable()
     print("Connection established!")
 
-    # i. Configure Loopback and an additional interface with IP addresses
-    interface_commands = [
-        'interface Loopback0',
-        'ip address 10.0.0.1 255.255.255.255',
+    # i. Configure Access Control Lists (ACLs)
+    acl_commands = [
+        'access-list 101 permit tcp host 192.168.1.100 any eq www',
+        'access-list 101 permit ip any host 192.168.1.50',
         'interface GigabitEthernet0/1',
-        'ip address 192.168.56.101 255.255.255.0',
+        'ip access-group 101 in',
+        'ip access-group 101 out',
     ]
 
-    print("Configuring interfaces...")
-    output = net_connect.send_config_set(interface_commands)
-    print("Interfaces configured!")
+    print("Configuring ACLs...")
+    output = net_connect.send_config_set(acl_commands)
+    print("ACLs configured!")
 
-    # ii. Configure OSPF
-    ospf_commands = [
-        'router ospf 1',
-        'network 10.0.0.1 0.0.0.0 area 0',
-        'network 192.168.56.0 0.0.0.255 area 0',
+    # ii. Implement IPSec
+    ipsec_commands = [
+        'crypto isakmp policy 1',
+        'encryption aes',
+        'authentication pre-share',
+        'group 2',
+        'crypto isakmp key strongkey address 0.0.0.0',
+        'crypto ipsec transform-set myset esp-aes esp-sha-hmac',
+        'crypto map mymap 10 ipsec-isakmp',
+        'set peer 192.168.1.50',
+        'set transform-set myset',
+        'match address 101',  # Use the ACL number defined above
+        'interface GigabitEthernet0/1',
+        'crypto map mymap',
     ]
 
-    print("Configuring OSPF...")
-    output = net_connect.send_config_set(ospf_commands)
-    print("OSPF configured!")
-
-    # iii. Print Loopback configuration
-    print("Configured Loopback0 with IP address 10.0.0.1/32")
+    print("Configuring IPSec...")
+    output = net_connect.send_config_set(ipsec_commands)
+    print("IPSec configured!")
 
     # Disconnect from the router
     print("Disconnecting from the router...")
